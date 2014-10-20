@@ -1,0 +1,1 @@
+Arduino sequencer for Digitech Whammy 5 (a work in progress)
