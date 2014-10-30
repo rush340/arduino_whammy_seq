@@ -1,6 +1,4 @@
-/* TODO better debugging method (need to send MIDI out of a different pin,
-so it's not tying up the default serial interface) */
-#define DEBUG false
+#include <SoftwareSerial.h>
 
 enum Modes {
   PLAY, // play current sequence
@@ -21,6 +19,8 @@ int sequence[] = {127, 0};
 int current_step = 0;
 long seq_speed = 150; // milliseconds per step
 long last_seq_step_time = 0;
+
+SoftwareSerial midi_serial(10, 11); // RX, TX
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,12 +81,12 @@ ButtonHandler start_button(START_BUTTON_PIN, DEBOUNCE_THRESHOLD);
 
 // the setup function runs once when you press reset or power the board
 void setup() {
-  if (DEBUG) {
-    Serial.begin(9600);
-  } else {
-    //  Set MIDI baud rate:
-    Serial.begin(31250);
-  }
+  #ifdef DEBUG
+  Serial.begin(9600);
+  #endif
+  
+  //  Set MIDI baud rate:
+  midi_serial.begin(31250);
 
   start_button.init();
 }
@@ -117,9 +117,6 @@ void loop() {
       break;
   }
 
-  if (DEBUG) {
-    delay(500);
-  }
 }
 
 void play_loop() {
@@ -128,7 +125,6 @@ void play_loop() {
 
     send_whammy_position((byte) sequence[current_step]);
 
-    // next step
     current_step += 1;
     current_step = current_step % (sizeof(sequence) / sizeof(sequence[0]));
   }
@@ -139,14 +135,14 @@ void stop_loop() {
 }
 
 void send_whammy_position(byte value) {
-  if (DEBUG) {
-    Serial.print("set position:");
-    Serial.print(value);
-    Serial.print("\n");
-  } else {
-    Serial.write((byte) 176); // CC on Channel 1 (10110000)
-    Serial.write((byte) 11); // Controller 11
-    Serial.write(value); // value
-  }
+  #ifdef DEBUG
+  Serial.print("set position:");
+  Serial.print(value);
+  Serial.print("\n");
+  #endif
+
+  midi_serial.write((byte) 176); // CC on Channel 1 (10110000)
+  midi_serial.write((byte) 11); // Controller 11
+  midi_serial.write(value);
 }
 
