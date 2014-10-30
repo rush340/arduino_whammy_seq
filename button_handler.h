@@ -10,10 +10,10 @@ class ButtonHandler {
     bool state;
 
   protected:
-    bool was_pressed;
-    long last_debounce_time;
     const int pin;
     const long debounce_threshold;
+    bool was_pressed;
+    long last_debounce_time;
 };
 
 #endif  // BUTTON_HANDLER_H_

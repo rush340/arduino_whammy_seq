@@ -45,11 +45,8 @@ void loop() {
   if (start_button.state && !last_start_button_state) {
     active_mode = active_mode == STOP ? PLAY : STOP;
 
-    // if changed to STOP, reset sequence
     if (active_mode == STOP) {
-      send_whammy_position((byte) 0);
-      current_step = 0;
-      last_seq_step_time = 0;
+      reset_sequence();
     }
   }
   last_start_button_state = start_button.state;
@@ -78,6 +75,12 @@ void play_loop() {
 
 void stop_loop() {
   // nothing to do here at the moment
+}
+
+void reset_sequence() {
+  send_whammy_position((byte) 0);
+  current_step = 0;
+  last_seq_step_time = 0;
 }
 
 void send_whammy_position(byte value) {
