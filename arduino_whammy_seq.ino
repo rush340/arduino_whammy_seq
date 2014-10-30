@@ -1,4 +1,5 @@
 #include <SoftwareSerial.h>
+#include "button_handler.h"
 
 enum Modes {
   PLAY, // play current sequence
@@ -21,61 +22,6 @@ long seq_speed = 150; // milliseconds per step
 long last_seq_step_time = 0;
 
 SoftwareSerial midi_serial(10, 11); // RX, TX
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-// TODO move ButtonHandler to its own file
-
-// button class that takes care of setup and debounce
-class ButtonHandler {
-  public:
-    ButtonHandler(int pin, int debounce_threshold);
-    void init();
-    int handle();
-    boolean state;
-
-  protected:
-    boolean was_pressed;
-    long last_debounce_time;
-    const int pin;
-    const long debounce_threshold;
-};
-
-ButtonHandler::ButtonHandler(int p, int db)
-: pin(p), debounce_threshold(db) {
-}
-
-void ButtonHandler::init() {
-  pinMode(pin, INPUT);
-  // connect internal pull-up resistor (will read LOW when pressed)
-  digitalWrite(pin, HIGH);
-  state = false;
-  was_pressed = false;
-  last_debounce_time = 0;
-}
-
-// check for state change and handle debounce
-int ButtonHandler::handle() {
-  int now_pressed = !digitalRead(pin);
-
-  if (now_pressed != was_pressed) {
-    last_debounce_time = millis();
-  }
-
-  if ((millis() - last_debounce_time) > debounce_threshold) {
-    if (now_pressed != state) {
-      state = now_pressed;
-    }
-  }
-
-  was_pressed = now_pressed;
-  return state;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
 
 ButtonHandler start_button(START_BUTTON_PIN, DEBOUNCE_THRESHOLD);
 
